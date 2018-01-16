@@ -25,6 +25,8 @@
 
 #include "type.h"
 
+#define CODE_TERM	0xffff
+
 class VTerm {
 public:
 	struct CharAttr {
