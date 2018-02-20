@@ -26,6 +26,7 @@
 #include "fbshellman.h"
 #include "fbconfig.h"
 #include "fbdev.h"
+#include "fbshm.h"
 #include "config.h"
 #ifdef ENABLE_VESA
 #include "vesadev.h"
@@ -45,12 +46,16 @@ DEFINE_INSTANCE(Screen)
 
 Screen *Screen::createInstance()
 {
+
 	if (!Font::instance() || !FW(1) || !FH(1)) {
 		fprintf(stderr, "init font error!\n");
 		return 0;
 	}
 
 	Screen *pScreen = 0;
+
+	s8 shm_info[2];
+	Config::instance()->getOption("shared-mem", shm_info, sizeof(shm_info));
 
 #ifdef ENABLE_VESA
 	s8 buf[16];
@@ -63,10 +68,18 @@ Screen *Screen::createInstance()
 	u32 mode = 0;
 	Config::instance()->getOption("vesa-mode", mode);
 
-	if (!mode) pScreen = FbDev::initFbDev();
+	if (!mode) {
+		if (strlen(shm_info))
+			pScreen = FbShm::initFbShm();
+		else
+			pScreen = FbDev::initFbDev();
+	}
 	if (!pScreen) pScreen = VesaDev::initVesaDev(mode);
 #else
-	pScreen = FbDev::initFbDev();
+	if (strlen(shm_info))
+		pScreen = FbShm::initFbShm();
+	else
+		pScreen = FbDev::initFbDev();
 #endif
 
 	if (!pScreen) return 0;

@@ -237,6 +237,7 @@ bool Config::parseArgs(s32 argc, s8 **argv)
 		{ "font-width", required_argument, 0, 2 },
 		{ "font-height", required_argument, 0, 4 },
 		{ "ambiguous-wide", no_argument, 0, 'a' },
+		{ "shared-mem", required_argument, 0, 'm' },
 #ifdef ENABLE_VESA
 		{ "vesa-mode", required_argument, 0, 3 },
 #endif
@@ -244,7 +245,7 @@ bool Config::parseArgs(s32 argc, s8 **argv)
 	};
 
 	s32 index;
-	while ((index = getopt_long(argc, argv, "Vvhn:s:f:b:e:r:i:a", options, 0)) != -1) {
+	while ((index = getopt_long(argc, argv, "Vvhn:s:f:b:e:r:i:m:a", options, 0)) != -1) {
 		switch (index) {
 		case 'V':
 			printf("FbTerm version " VERSION "\n");
@@ -269,6 +270,7 @@ bool Config::parseArgs(s32 argc, s8 **argv)
 				"  -r, --screen-rotate=NUM         specify orientation of screen display\n"
 				"  -a, --ambiguous-wide            treat ambiguous width characters as wide\n"
 				"  -i, --input-method=TEXT         specify input method program\n"
+				"  -m, --shared-mem=DESC           use shared-memory framebuffer DESC\n"
 				"      --cursor-shape=NUM          specify default cursor shape\n"
 				"      --cursor-interval=NUM       specify cursor flash interval\n"
 #ifdef ENABLE_VESA
