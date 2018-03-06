@@ -34,11 +34,6 @@
 #include "improxy.h"
 #include "fbconfig.h"
 
-static termios oldTm;
-static long oldKbMode;
-static bool keymapFailure = false;
-static bool inited = false;
-
 DEFINE_INSTANCE(TtyInput)
 
 class TtyInputVT : public TtyInput, public IoPipe {
@@ -59,6 +54,10 @@ private:
 	void processRawKeys(s8* buf, u32 len);
 
 	bool mRawMode;
+	termios oldTm;
+	long oldKbMode;
+	bool keymapFailure = false;
+	bool inited = false;
 };
 
 TtyInput *TtyInput::createInstance()
