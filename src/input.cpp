@@ -41,6 +41,26 @@ static bool inited = false;
 
 DEFINE_INSTANCE(TtyInput)
 
+class TtyInputVT : public TtyInput, public IoPipe {
+	friend class TtyInput;
+
+public:
+	void switchVc(bool enter);
+	void setRawMode(bool raw, bool force = false);
+	void showInfo(bool verbose);
+
+protected:
+	TtyInputVT();
+	~TtyInputVT();
+
+private:
+	virtual void readyRead(s8 *buf, u32 len);
+	void setupSysKey(bool restore);
+	void processRawKeys(s8* buf, u32 len);
+
+	bool mRawMode;
+};
+
 TtyInput *TtyInput::createInstance()
 {
 	s8 buf[64];
@@ -54,15 +74,15 @@ TtyInput *TtyInput::createInstance()
 		return 0;
 	}
 
-	return new TtyInput();
+	return new TtyInputVT();
 }
 
-TtyInput::TtyInput()
+TtyInputVT::TtyInputVT()
 {
 	setFd(dup(STDIN_FILENO));
 }
 
-TtyInput::~TtyInput()
+TtyInputVT::~TtyInputVT()
 {
 	if (!inited) return;
 
@@ -71,14 +91,14 @@ TtyInput::~TtyInput()
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &oldTm);
 }
 
-void TtyInput::showInfo(bool verbose)
+void TtyInputVT::showInfo(bool verbose)
 {
 	if (keymapFailure) {
 		printf("[input] can't change kernel keymap table, all shortcuts will NOT work! see SECURITY NOTES section of man page for solution.\n");
 	}
 }
 
-void TtyInput::switchVc(bool enter)
+void TtyInputVT::switchVc(bool enter)
 {
 	setupSysKey(!enter);
 
@@ -97,7 +117,7 @@ void TtyInput::switchVc(bool enter)
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &tm);
 }
 
-void TtyInput::setupSysKey(bool restore)
+void TtyInputVT::setupSysKey(bool restore)
 {
 	#define T_SHIFT (1 << KG_SHIFT)
 	#define T_CTRL (1 << KG_CTRL)
@@ -168,7 +188,7 @@ void TtyInput::setupSysKey(bool restore)
 	seteuid(getuid());
 }
 
-void TtyInput::readyRead(s8 *buf, u32 len)
+void TtyInputVT::readyRead(s8 *buf, u32 len)
 {
 	if (mRawMode) {
 		processRawKeys(buf, len);
@@ -201,7 +221,7 @@ static bool key_down[NR_KEYS];
 static u8 shift_down[NR_SHIFT];
 static u16 shift_state;
 
-void TtyInput::setRawMode(bool raw, bool force)
+void TtyInputVT::setRawMode(bool raw, bool force)
 {
 	if (!force && raw == mRawMode) return;
 
@@ -231,7 +251,7 @@ void TtyInput::setRawMode(bool raw, bool force)
 	}
 }
 
-void TtyInput::processRawKeys(s8 *buf, u32 len)
+void TtyInputVT::processRawKeys(s8 *buf, u32 len)
 {
 	FbShell *shell = FbShellManager::instance()->activeShell();
 	u32 start = 0;

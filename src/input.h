@@ -24,19 +24,18 @@
 #include "io.h"
 #include "instance.h"
 
-class TtyInput : public IoPipe {
-	DECLARE_INSTANCE(TtyInput)
+class TtyInput {
 public:
-	void switchVc(bool enter);
-	void setRawMode(bool raw, bool force = false);
-	void showInfo(bool verbose);
+	static TtyInput *instance();
+	static void uninstance();
 
+	virtual void switchVc(bool enter) = 0;
+	virtual void setRawMode(bool raw, bool force = false) = 0;
+	virtual void showInfo(bool verbose) = 0;
 private:
-	virtual void readyRead(s8 *buf, u32 len);
-	void setupSysKey(bool restore);
-	void processRawKeys(s8* buf, u32 len);
-
-	bool mRawMode;
+	static TtyInput *createInstance();
+	static TtyInput *mpTtyInput;
 };
+
 
 #endif
