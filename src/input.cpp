@@ -60,9 +60,22 @@ private:
 	bool inited = false;
 };
 
+class TtyInputNull : public TtyInput {
+	friend class TtyInput;
+
+public:
+	void switchVc(bool enter);
+	void setRawMode(bool raw, bool force = false);
+	void showInfo(bool verbose);
+
+protected:
+	TtyInputNull();
+};
+
 TtyInput *TtyInput::createInstance()
 {
 	s8 buf[64];
+
 	if (ttyname_r(STDIN_FILENO, buf, sizeof(buf))) {
 		fprintf(stderr, "stdin isn't a tty!\n");
 		return 0;
@@ -328,4 +341,20 @@ void TtyInputVT::processRawKeys(s8 *buf, u32 len)
 	}
 
 	if (shell && len > start) shell->keyInput(buf + start, len - start);
+}
+
+void TtyInputNull::switchVc(bool enter)
+{
+}
+
+void TtyInputNull::setRawMode(bool raw, bool force)
+{
+}
+
+void TtyInputNull::showInfo(bool verbose)
+{
+}
+
+TtyInputNull::TtyInputNull()
+{
 }
