@@ -238,6 +238,7 @@ bool Config::parseArgs(s32 argc, s8 **argv)
 		{ "font-height", required_argument, 0, 4 },
 		{ "ambiguous-wide", no_argument, 0, 'a' },
 		{ "shared-mem", required_argument, 0, 'm' },
+		{ "write-only", no_argument, 0, 'w' },
 #ifdef ENABLE_VESA
 		{ "vesa-mode", required_argument, 0, 3 },
 #endif

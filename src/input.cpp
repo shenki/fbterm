@@ -74,7 +74,12 @@ protected:
 
 TtyInput *TtyInput::createInstance()
 {
+	bool write_only;
 	s8 buf[64];
+
+	Config::instance()->getOption("write-only", write_only);
+	if (write_only)
+		return new TtyInputNull();
 
 	if (ttyname_r(STDIN_FILENO, buf, sizeof(buf))) {
 		fprintf(stderr, "stdin isn't a tty!\n");
