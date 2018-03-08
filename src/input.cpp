@@ -23,9 +23,12 @@
 #include <string.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <sys/vt.h>
 #include <linux/kd.h>
+#include <linux/kdev_t.h>
 #include <linux/input.h>
+#include <linux/vt.h>
 #include "input.h"
 #include "input_key.h"
 #include "fbshell.h"
@@ -43,6 +46,7 @@ public:
 	void switchVc(bool enter);
 	void setRawMode(bool raw, bool force = false);
 	void showInfo(bool verbose);
+	bool isActive(void);
 
 protected:
 	TtyInputVT();
@@ -106,6 +110,11 @@ TtyInputVT::~TtyInputVT()
 	setupSysKey(true);
 	ioctl(STDIN_FILENO, KDSKBMODE, oldKbMode);
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &oldTm);
+}
+
+bool TtyInput::isActive(void)
+{
+	return true;
 }
 
 void TtyInputVT::showInfo(bool verbose)
@@ -346,6 +355,17 @@ void TtyInputVT::processRawKeys(s8 *buf, u32 len)
 	}
 
 	if (shell && len > start) shell->keyInput(buf + start, len - start);
+}
+
+bool TtyInputVT::isActive(void)
+{
+	struct vt_stat vtstat;
+	ioctl(STDIN_FILENO, VT_GETSTATE, &vtstat);
+
+	struct stat ttystat;
+	fstat(STDIN_FILENO, &ttystat);
+
+	return vtstat.v_active == MINOR(ttystat.st_rdev);
 }
 
 void TtyInputNull::switchVc(bool enter)

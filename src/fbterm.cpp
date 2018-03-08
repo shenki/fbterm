@@ -25,7 +25,6 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <linux/vt.h>
-#include <linux/kdev_t.h>
 #include "config.h"
 #include "fbterm.h"
 #include "fbshell.h"
@@ -151,13 +150,7 @@ void FbTerm::init()
 
 static bool isActiveTerm()
 {
-	struct vt_stat vtstat;
-	ioctl(STDIN_FILENO, VT_GETSTATE, &vtstat);
-
-	struct stat ttystat;
-	fstat(STDIN_FILENO, &ttystat);
-
-	return vtstat.v_active == MINOR(ttystat.st_rdev);
+	return TtyInput::instance()->isActive();
 }
 
 void FbTerm::run()

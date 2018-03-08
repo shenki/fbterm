@@ -32,6 +32,7 @@ public:
 	virtual void switchVc(bool enter) = 0;
 	virtual void setRawMode(bool raw, bool force = false) = 0;
 	virtual void showInfo(bool verbose) = 0;
+	virtual bool isActive(void);
 private:
 	static TtyInput *createInstance();
 	static TtyInput *mpTtyInput;
