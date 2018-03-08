@@ -19,6 +19,7 @@
  */
 
 #include <unistd.h>
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <termios.h>
@@ -110,6 +111,15 @@ TtyInputVT::TtyInputVT()
 
 	s32 ret = ::write(STDIN_FILENO, hide_cursor, sizeof(hide_cursor) - 1);
 	ret = ::write(STDIN_FILENO, disable_blank, sizeof(disable_blank) - 1);
+
+	struct vt_mode vtm;
+	vtm.mode = VT_PROCESS;
+	vtm.waitv = 0;
+	vtm.relsig = SIGUSR1;
+	vtm.acqsig = SIGUSR2;
+	vtm.frsig = 0;
+	ioctl(STDIN_FILENO, VT_SETMODE, &vtm);
+
 }
 
 TtyInputVT::~TtyInputVT()
@@ -141,7 +151,13 @@ void TtyInputVT::switchVc(bool enter)
 {
 	setupSysKey(!enter);
 
-	if (!enter || inited) return;
+	if (!enter) {
+		ioctl(STDIN_FILENO, VT_RELDISP, 1);
+		return;
+	}
+
+	if (inited)
+		return;
 	inited = true;
 
 	tcgetattr(STDIN_FILENO, &oldTm);

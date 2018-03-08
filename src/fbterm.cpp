@@ -21,10 +21,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <signal.h>
-#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <linux/vt.h>
 #include "config.h"
 #include "fbterm.h"
 #include "fbshell.h"
@@ -111,14 +109,6 @@ void FbTerm::init()
 {
 	if (!TtyInput::instance() || !Screen::instance()) return;
 
-	struct vt_mode vtm;
-	vtm.mode = VT_PROCESS;
-	vtm.waitv = 0;
-	vtm.relsig = SIGUSR1;
-	vtm.acqsig = SIGUSR2;
-	vtm.frsig = 0;
-	ioctl(STDIN_FILENO, VT_SETMODE, &vtm);
-
 #ifdef HAVE_SIGNALFD
 	sigset_t sigmask;
 	sigemptyset(&sigmask);
@@ -190,7 +180,6 @@ void FbTerm::processSignal(u32 signo)
 		Screen::instance()->switchVc(false);
 		TtyInput::instance()->switchVc(false);
 		Mouse::instance()->switchVc(false);
-		ioctl(STDIN_FILENO, VT_RELDISP, 1);
 		break;
 
 	case SIGUSR2:
