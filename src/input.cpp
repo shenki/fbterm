@@ -37,6 +37,12 @@
 #include "improxy.h"
 #include "fbconfig.h"
 
+static const s8 show_cursor[] = "\e[?25h";
+static const s8 hide_cursor[] = "\e[?25l";
+static const s8 disable_blank[] = "\e[9;0]";
+static const s8 enable_blank[] = "\e[9;10]";
+static const s8 clear_screen[] = "\e[2J\e[H";
+
 DEFINE_INSTANCE(TtyInput)
 
 class TtyInputVT : public TtyInput, public IoPipe {
@@ -101,6 +107,9 @@ TtyInput *TtyInput::createInstance()
 TtyInputVT::TtyInputVT()
 {
 	setFd(dup(STDIN_FILENO));
+
+	s32 ret = ::write(STDIN_FILENO, hide_cursor, sizeof(hide_cursor) - 1);
+	ret = ::write(STDIN_FILENO, disable_blank, sizeof(disable_blank) - 1);
 }
 
 TtyInputVT::~TtyInputVT()
@@ -110,6 +119,10 @@ TtyInputVT::~TtyInputVT()
 	setupSysKey(true);
 	ioctl(STDIN_FILENO, KDSKBMODE, oldKbMode);
 	tcsetattr(STDIN_FILENO, TCSAFLUSH, &oldTm);
+
+	s32 ret = ::write(STDIN_FILENO, show_cursor, sizeof(show_cursor) - 1);
+	ret = ::write(STDIN_FILENO, enable_blank, sizeof(enable_blank) - 1);
+	ret = ::write(STDIN_FILENO, clear_screen, sizeof(clear_screen) - 1);
 }
 
 bool TtyInput::isActive(void)
