@@ -309,8 +309,8 @@ Font::Glyph *Font::getGlyph(u32 unicode)
 	Glyph *glyph = (Glyph *)new u8[OFFSET(Glyph, pixmap) + nw * nh];
 	glyph->left = face->glyph->metrics.horiBearingX >> 6;
 	glyph->top = mHeight - 1 + (face->size->metrics.descender >> 6) - (face->glyph->metrics.horiBearingY >> 6);
-	glyph->width = face->glyph->metrics.width >> 6;
-	glyph->height = face->glyph->metrics.height >> 6;
+	glyph->width = w;
+	glyph->height = h;
 	glyph->pitch = nw;
 
 	u8 *buf = bitmap.buffer;
