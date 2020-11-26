@@ -246,7 +246,7 @@ bool Config::parseArgs(s32 argc, s8 **argv)
 	};
 
 	s32 index;
-	while ((index = getopt_long(argc, argv, "Vvhn:s:f:b:e:r:i:m:a", options, 0)) != -1) {
+	while ((index = getopt_long(argc, argv, "Vvhn:s:f:b:e:r:i:m:aw", options, 0)) != -1) {
 		switch (index) {
 		case 'V':
 			printf("FbTerm version " VERSION "\n");
@@ -272,6 +272,7 @@ bool Config::parseArgs(s32 argc, s8 **argv)
 				"  -a, --ambiguous-wide            treat ambiguous width characters as wide\n"
 				"  -i, --input-method=TEXT         specify input method program\n"
 				"  -m, --shared-mem=DESC           use shared-memory framebuffer DESC\n"
+				"  -w, --write-only		   disable input methods\n"
 				"      --cursor-shape=NUM          specify default cursor shape\n"
 				"      --cursor-interval=NUM       specify cursor flash interval\n"
 #ifdef ENABLE_VESA
